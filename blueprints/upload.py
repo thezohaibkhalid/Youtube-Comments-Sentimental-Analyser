@@ -1,5 +1,3 @@
-# blueprints/upload.py
-
 import logging
 from flask import Blueprint, render_template, request
 from services.upload_service import UploadService
@@ -36,7 +34,7 @@ def analyze_upload():
         logger.error(f"Exception: {str(e)}")
         return render_template("result.html", error=error_message), 500
     
-    # Prepare the data for rendering
+    # Return successful result
     file_sentiment = {
         "filename": filename,
         "sentiments": sentiments,
@@ -44,3 +42,4 @@ def analyze_upload():
     }
 
     return render_template("result.html", file_sentiment=file_sentiment)
+

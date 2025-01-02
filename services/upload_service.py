@@ -1,18 +1,17 @@
-# services/upload_service.py
-
 import os
 from werkzeug.utils import secure_filename
 from utils.preprocess import preprocess_file_content
 from services.sentiment_service import SentimentService
 import logging
+import PyPDF2
 
 # Define the logger for this module
 logger = logging.getLogger(__name__)
 
 class UploadService:
     def __init__(self):
-        self.allowed_extensions = {'txt', 'csv'}
-        self.max_file_size = 5 * 1024 * 1024  # 5MB
+        self.allowed_extensions = {'txt', 'pdf'}
+        self.max_file_size = 10 * 1024 * 1024  # 10MB
         self.sentiment_service = SentimentService()
 
     def allowed_file(self, filename):
@@ -22,15 +21,15 @@ class UploadService:
     def process_file(self, file):
         if not self.allowed_file(file.filename):
             logger.warning("Attempted to upload an unsupported file type.")
-            raise ValueError("Unsupported file type. Please upload a .txt or .csv file.")
+            raise ValueError("Unsupported file type. Please upload a .txt or .pdf file.")
         
         file.seek(0, os.SEEK_END)
         file_length = file.tell()
         file.seek(0)
 
         if file_length > self.max_file_size:
-            logger.warning("Uploaded file exceeds the maximum allowed size.")
-            raise ValueError("File size exceeds the maximum limit of 5MB.")
+            logger.warning(f"Uploaded file exceeds the maximum allowed size: {file_length} bytes.")
+            raise ValueError("File size exceeds the maximum limit of 10MB.")
 
         filename = secure_filename(file.filename)
         logger.info(f"Processing file: {filename}")
@@ -38,20 +37,21 @@ class UploadService:
         try:
             if filename.endswith('.txt'):
                 content = file.read().decode('utf-8').strip()
-            elif filename.endswith('.csv'):
-                import csv
-                content = file.read().decode('utf-8').strip()
-                reader = csv.reader(content.splitlines())
-                # Assuming text is in the first column
-                content = ' '.join([row[0] for row in reader if row])
+            elif filename.endswith('.pdf'):
+                content = self.extract_text_from_pdf(file)
             else:
                 raise ValueError("Unsupported file format.")
         except UnicodeDecodeError as e:
             logger.error(f"Unicode decode error: {e}")
-            raise ValueError("File contains unsupported characters or encoding.")
+            raise ValueError("The file contains unsupported characters or encoding. Please upload a properly encoded file.")
         except Exception as e:
             logger.error(f"Error reading the file: {e}")
-            raise ValueError("Error reading the file. Please ensure it's a valid text or CSV file.")
+            raise ValueError("Error reading the file. Please ensure it's a valid text or PDF file.")
+
+        # Check if content is empty after reading
+        if not content:
+            logger.warning("File content is empty.")
+            raise ValueError("The file is empty or does not contain valid text.")
 
         # Preprocess the entire content for sentiment analysis
         try:
@@ -76,6 +76,13 @@ class UploadService:
         logger.info(f"File processed successfully: {filename}")
         return filename, sentiments, sample_text
 
+    def extract_text_from_pdf(self, file):
+        pdf_reader = PyPDF2.PdfReader(file)
+        text = ""
+        for page in pdf_reader.pages:
+            text += page.extract_text()
+        return text.strip()
+
     def close(self):
-        # Removed the call to self.sentiment_service.close() to prevent AttributeError
         pass
+

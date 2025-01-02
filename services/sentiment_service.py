@@ -1,5 +1,3 @@
-# services/sentiment_service.py
-
 import pickle
 import string
 from nltk.corpus import stopwords

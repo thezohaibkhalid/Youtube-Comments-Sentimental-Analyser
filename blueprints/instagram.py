@@ -1,5 +1,3 @@
-# blueprints/instagram.py
-
 from flask import Blueprint, render_template, request, jsonify
 from services.sentiment_service import SentimentService
 from services.instagram_service import InstagramService

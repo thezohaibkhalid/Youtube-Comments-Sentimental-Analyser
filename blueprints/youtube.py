@@ -1,5 +1,3 @@
-# blueprints/youtube.py
-
 from flask import Blueprint, render_template, request, jsonify
 from services.sentiment_service import SentimentService
 from services.youtube_service import YouTubeService

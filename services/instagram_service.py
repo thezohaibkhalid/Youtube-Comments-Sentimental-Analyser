@@ -14,7 +14,7 @@ class InstagramService:
             raise ValueError("Instagram credentials not found in environment variables.")
         
         self.playwright = sync_playwright().start()
-        self.browser = self.playwright.chromium.launch(headless=True)  # Set headless=False for debugging
+        self.browser = self.playwright.chromium.launch(headless=True)  
         self.context = self.browser.new_context(viewport={"width": 1920, "height": 1080})
         self.page = self.context.new_page()
         self._login()
@@ -22,24 +22,20 @@ class InstagramService:
     def _login(self):
         page = self.page
         page.goto("https://www.instagram.com/accounts/login/")
-        page.wait_for_timeout(3000)  # Wait for the login page to load
+        page.wait_for_timeout(3000)   
 
-        # Enter username
-        page.fill("input[name='username']", self.username)
+         page.fill("input[name='username']", self.username)
 
-        # Enter password
-        page.fill("input[name='password']", self.password)
+         page.fill("input[name='password']", self.password)
         page.press("input[name='password']", "Enter")
-        page.wait_for_timeout(5000)  # Wait for login to complete
+        page.wait_for_timeout(5000)   
 
-        # Handle "Save Your Login Info?" popup
-        try:
+         try:
             page.locator("text=Not Now").click(timeout=3000)
         except:
             pass
 
-        # Handle "Turn on Notifications" popup
-        try:
+         try:
             page.locator("text=Not Now").click(timeout=3000)
         except:
             pass
@@ -51,7 +47,7 @@ class InstagramService:
         page = self.page
         post_url = f"https://www.instagram.com/p/{shortcode}/"
         page.goto(post_url)
-        page.wait_for_timeout(5000)  # Wait for the post page to load
+        page.wait_for_timeout(5000)   
 
         comments = set()
         last_height = None

@@ -4,32 +4,67 @@ import pickle
 from utils.preprocess import preprocess_comment, get_sentiment_label
 import logging
 
+# Configure logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
 class SentimentService:
     def __init__(self):
         # Load the trained model and vectorizer
-        with open("models/model.pkl", "rb") as f:
-            self.model = pickle.load(f)
-        with open("models/vectorizer.pkl", "rb") as f:
-            self.vectorizer = pickle.load(f)
-
+        try:
+            with open("models/model.pkl", "rb") as f:
+                self.model = pickle.load(f)
+            with open("models/vectorizer.pkl", "rb") as f:
+                self.vectorizer = pickle.load(f)
+            logger.info("Model and vectorizer loaded successfully.")
+        except Exception as e:
+            logger.error(f"Error loading model or vectorizer: {e}")
+            raise e  # Re-raise exception after logging
 
     def preprocess_comment(self, comment):
+        """
+        Preprocesses a single comment.
 
-        return preprocess_comment(comment, apply_stemming=True)   
+        Args:
+            comment (str): The comment text to preprocess.
+
+        Returns:
+            str: The preprocessed comment.
+        """
+        return preprocess_comment(comment, apply_stemming=True)  # Correct number of arguments
 
     def get_sentiment(self, processed_comment):
+        """
+        Predicts the sentiment of a preprocessed comment.
 
+        Args:
+            processed_comment (str): The preprocessed comment text.
+
+        Returns:
+            str: The sentiment label ("positive", "neutral", "negative").
+        """
         features = self.vectorizer.transform([processed_comment])
         prediction = self.model.predict(features)[0]
         return get_sentiment_label(prediction)
 
     def analyze_sentiments(self, comments):
+        """
+        Analyzes the sentiments of a list of comments.
 
+        Args:
+            comments (list of str): The list of comment texts.
+
+        Returns:
+            dict: A dictionary containing total comments and sentiment percentages.
+        """
         sentiments = {"positive": 0, "neutral": 0, "negative": 0}
         for comment in comments:
             processed_comment = self.preprocess_comment(comment)
             sentiment = self.get_sentiment(processed_comment)
-            sentiments[sentiment] += 1
+            if sentiment in sentiments:
+                sentiments[sentiment] += 1
+            else:
+                logger.warning(f"Unknown sentiment label: {sentiment}")
 
         total = sum(sentiments.values())
         if total == 0:
@@ -38,4 +73,5 @@ class SentimentService:
         sentiment_percentages = {
             k: round(v / total * 100, 2) for k, v in sentiments.items()
         }
+        logger.info(f"Sentiment analysis completed: {sentiment_percentages}")
         return {"total_comments": total, "sentiments": sentiment_percentages}

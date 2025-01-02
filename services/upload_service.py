@@ -51,17 +51,17 @@ class UploadService:
             logger.error(f"Error reading the file: {e}")
             raise ValueError("Error reading the file. Please ensure it's a valid text or CSV file.")
 
-        # Preprocess the text
-        preprocessed_text = preprocess_text(lines)
+        # Extract sample text (first 5 comments) and preprocess for display
+        sample_text = preprocess_text(lines[:5], apply_stemming=True)
+        logger.info("Sample text extracted and preprocessed.")
 
-        # Perform sentiment analysis
-        sentiments = self.sentiment_service.analyze_sentiments(preprocessed_text)
-
-        # Extract sample text
-        sample_text = preprocessed_text[:5]  # First 5 lines as sample
+        # Perform sentiment analysis on raw comments
+        sentiments = self.sentiment_service.analyze_sentiments(lines)
+        logger.info("Sentiment analysis completed.")
 
         logger.info(f"File processed successfully: {filename}")
         return filename, sentiments, sample_text
 
     def close(self):
-        self.sentiment_service.close()
+        # Removed the call to self.sentiment_service.close() to prevent AttributeError
+        pass

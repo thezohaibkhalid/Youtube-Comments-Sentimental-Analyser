@@ -18,12 +18,16 @@ function updateButtonStyles(section) {
   document.getElementById('textBtn').className = `flex-1 py-3 px-6 rounded-lg font-semibold transition duration-300 ${
     section === 'text' ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
   }`;
+  document.getElementById('fileBtn').className = `flex-1 py-3 px-6 rounded-lg font-semibold transition duration-300 ${
+    section === 'file' ? 'file-upload-gradient text-white' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+  }`;
 }
 
 function toggleSections(section) {
   document.getElementById('youtubeSection').classList.toggle('hidden', section !== 'youtube');
   document.getElementById('instagramSection').classList.toggle('hidden', section !== 'instagram');
   document.getElementById('textSection').classList.toggle('hidden', section !== 'text');
+  document.getElementById('fileSection').classList.toggle('hidden', section !== 'file');
 }
 
 function updateFormAction(section) {
@@ -32,6 +36,8 @@ function updateFormAction(section) {
     form.action = '/youtube';
   } else if (section === 'instagram') {
     form.action = '/instagram';
+  } else if (section === 'file') {
+    form.action = '/upload';
   } else {
     form.action = '/analyze';
   }
@@ -50,6 +56,9 @@ function clearOtherInputs(section) {
   }
   if (section !== 'text') {
     document.getElementById('textInput').value = '';
+  }
+  if (section !== 'file') {
+    document.getElementById('fileInput').value = '';
   }
 }
 

@@ -18,6 +18,16 @@
 
         <h1 class="text-5xl font-bold text-gray-800 mb-8 drop-shadow-lg">Sentiment Analysis</h1>
         
+        <!-- Display Errors -->
+        {% if error %}
+            <section class="mb-8">
+                <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
+                    <strong class="font-bold">Error:</strong>
+                    <span class="block sm:inline">{{ error }}</span>
+                </div>
+            </section>
+        {% endif %}
+
         <!-- Text Comment Analysis -->
         {% if comment and sentiment %}
             <section class="mb-8">
@@ -93,6 +103,27 @@
                         {% endfor %}
                     </ul>
                 {% endif %}
+            </section>
+        {% endif %}
+
+        <!-- File Upload Analysis -->
+        {% if file_sentiment %}
+            <section class="mb-8">
+                <h2 class="text-2xl font-semibold text-gray-700">File Upload Analysis</h2>
+                <p class="mt-2"><strong>Filename:</strong> {{ file_sentiment.filename }}</p>
+                <p><strong>Sentiment Analysis:</strong></p>
+                <ul class="list-disc list-inside">
+                    <li>Positive: {{ file_sentiment.sentiments.positive }}%</li>
+                    <li>Neutral: {{ file_sentiment.sentiments.neutral }}%</li>
+                    <li>Negative: {{ file_sentiment.sentiments.negative }}%</li>
+                </ul>
+
+                <h3 class="mt-4 text-xl font-semibold text-gray-700">Sample Text:</h3>
+                <ul class="list-disc list-inside">
+                    {% for line in file_sentiment.sample_text %}
+                        <li>{{ line }}</li>
+                    {% endfor %}
+                </ul>
             </section>
         {% endif %}
         

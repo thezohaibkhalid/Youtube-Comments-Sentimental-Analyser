@@ -9,9 +9,9 @@ from blueprints.upload import upload_bp  # If you have this blueprint
 from dotenv import load_dotenv
 import os
 import nltk
-
+import logging
 def create_app():
-    # Load environment variables from .env file
+
     load_dotenv()
 
     # Initialize NLTK data
@@ -20,6 +20,14 @@ def create_app():
     # Initialize Flask app
     app = Flask(__name__)
     app.config.from_object(Config)
+
+        # Configure global logging
+    logging.basicConfig(level=logging.DEBUG,   
+                        format='%(asctime)s %(levelname)s %(name)s %(message)s',
+                        handlers=[
+                            logging.StreamHandler()   
+                        ])
+  
 
     # Register Blueprints
     app.register_blueprint(analyze_bp)

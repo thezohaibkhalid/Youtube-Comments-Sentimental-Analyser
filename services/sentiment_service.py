@@ -1,11 +1,10 @@
 # services/sentiment_service.py
 
 import pickle
-from utils.preprocess import preprocess_comment, get_sentiment_label
+from utils.preprocess import get_sentiment_label, preprocess_comment  # Import preprocess_comment
 import logging
 
-# Configure logging
-logging.basicConfig(level=logging.DEBUG)  # Set to DEBUG for detailed logs
+# Define the logger for this module
 logger = logging.getLogger(__name__)
 
 class SentimentService:
@@ -31,7 +30,7 @@ class SentimentService:
         Returns:
             str: The preprocessed comment.
         """
-        return preprocess_comment(comment, apply_stemming=False)  # Disable stemming
+        return preprocess_comment(comment, apply_stemming=False)  # Disabled stemming
 
     def get_sentiment(self, processed_comment):
         """
@@ -45,35 +44,44 @@ class SentimentService:
         """
         features = self.vectorizer.transform([processed_comment])
         prediction = self.model.predict(features)[0]
-        return get_sentiment_label(prediction)
+        sentiment = get_sentiment_label(prediction)
+        logger.debug(f"Processed Comment: {processed_comment}")
+        logger.debug(f"Predicted Sentiment: {sentiment}")
+        return sentiment
 
-        def analyze_sentiments(self, comments):
-            sentiments = {"positive": 0, "neutral": 0, "negative": 0}
-            unknown_count = 0
-            for comment in comments:
-                processed_comment = self.preprocess_comment(comment)
-                logger.debug(f"Processed Comment: {processed_comment}")  # Debug-level logging
-                sentiment = self.get_sentiment(processed_comment)
-                logger.debug(f"Predicted Sentiment: {sentiment}")  # Debug-level logging
-                if sentiment in sentiments:
-                    sentiments[sentiment] += 1
-                else:
-                    unknown_count += 1
-                    logger.warning(f"Unknown sentiment label: {sentiment}")
+    def analyze_sentiments(self, comments):
+        """
+        Analyzes the sentiments of a list of comments.
 
-            total = sum(sentiments.values())
-            logger.debug(f"Total sentiments counted: {total}")
-            if unknown_count > 0:
-                logger.warning(f"Number of unknown sentiments: {unknown_count}")
-            
-            if total == 0:
-                logger.error("No valid sentiments were detected.")
-                return {"message": "No comments to analyze."}
+        Args:
+            comments (list of str): The list of comment texts.
 
-            sentiment_percentages = {
-                k: round(v / total * 100, 2) for k, v in sentiments.items()
-            }
-            if unknown_count > 0:
-                sentiment_percentages["unknown"] = round(unknown_count / (total + unknown_count) * 100, 2)
-            logger.info(f"Sentiment analysis completed: {sentiment_percentages}")
-            return {"total_comments": total, "sentiments": sentiment_percentages}
+        Returns:
+            dict: A dictionary containing total comments and sentiment percentages.
+        """
+        sentiments = {"positive": 0, "neutral": 0, "negative": 0}
+        unknown_count = 0
+        for comment in comments:
+            sentiment = self.get_sentiment(comment)
+            if sentiment in sentiments:
+                sentiments[sentiment] += 1
+            else:
+                unknown_count += 1
+                logger.warning(f"Unknown sentiment label: {sentiment}")
+
+        total = sum(sentiments.values())
+        logger.debug(f"Total sentiments counted: {total}")
+        if unknown_count > 0:
+            logger.warning(f"Number of unknown sentiments: {unknown_count}")
+        
+        if total == 0:
+            logger.error("No valid sentiments were detected.")
+            return {"message": "No comments to analyze."}
+
+        sentiment_percentages = {
+            k: round(v / total * 100, 2) for k, v in sentiments.items()
+        }
+        if unknown_count > 0:
+            sentiment_percentages["unknown"] = round(unknown_count / (total + unknown_count) * 100, 2)
+        logger.info(f"Sentiment analysis completed: {sentiment_percentages}")
+        return {"total_comments": total, "sentiments": sentiment_percentages}

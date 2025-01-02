@@ -11,7 +11,7 @@ class TestPreprocessFileContent(unittest.TestCase):
         self.assertEqual(preprocess_comment(input_text), expected_output)
     
     def test_preprocess_comment_with_stemming(self):
-        # Assuming stem_words is used within preprocess_comment
+        #  stem_words is used within preprocess_comment
         input_text = "Running runs ran runner easily"
         expected_output = "run run ran runner easili"
         self.assertEqual(preprocess_comment(input_text), expected_output)

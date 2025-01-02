@@ -1,4 +1,3 @@
-<!-- templates/result.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -11,124 +10,179 @@
       body {
         font-family: 'Roboto', sans-serif;
       }
+      .sentiment-card {
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+      }
+      .sentiment-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1);
+      }
+      /* Custom scrollbar for YouTube comments */
+      .scrollbar-thin::-webkit-scrollbar {
+        width: 8px;
+      }
+      .scrollbar-thumb-rounded::-webkit-scrollbar-thumb {
+        background-color: rgba(100, 100, 111, 0.3);
+        border-radius: 4px;
+      }
+      .scrollbar-track-rounded::-webkit-scrollbar-track {
+        background: transparent;
+        border-radius: 4px;
+      }
     </style>
 </head>
-<body class="bg-cover bg-center min-h-screen font-sans px-6 py-4" style="background-image: url('https://images.unsplash.com/photo-1568642157487-c7d833d0204a?q=80&w=2038&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D');">
-    <div class="bg-white/50 backdrop-blur-md rounded-xl shadow-2xl max-w-3xl mx-auto p-8 mt-20">
-
-        <h1 class="text-5xl font-bold text-gray-800 mb-8 drop-shadow-lg">Sentiment Analysis</h1>
+<body class="bg-gray-100 min-h-screen font-sans px-6 py-8">
+    <div class="bg-white rounded-3xl shadow-2xl max-w-7xl mx-auto p-12 mt-12">
+        <h1 class="text-6xl font-extrabold text-gray-800 mb-10 text-center drop-shadow-lg">Sentiment Analysis</h1>
         
         <!-- Display Errors -->
         {% if error %}
-            <section class="mb-8">
-                <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
-                    <strong class="font-bold">Error:</strong>
-                    <span class="block sm:inline">{{ error }}</span>
+            <section class="mb-10">
+                <div class="bg-red-100 border border-red-400 text-red-700 px-6 py-4 rounded-lg" role="alert">
+                    <strong class="font-bold text-xl">Error:</strong>
+                    <span class="block sm:inline text-lg">{{ error }}</span>
                 </div>
             </section>
         {% endif %}
 
         <!-- Text Comment Analysis -->
         {% if comment and sentiment %}
-            <section class="mb-8">
-                <h2 class="text-2xl font-semibold text-gray-700">Text Comment Analysis</h2>
-                <p class="mt-2"><strong>Comment:</strong> {{ comment }}</p>
-                <p><strong>Sentiment:</strong> <span class="font-bold">{{ sentiment }}</span></p>
+            <section class="mb-10">
+                <div class="bg-gradient-to-r from-blue-100 to-purple-100 rounded-3xl p-8 shadow-xl animate-bounce">
+                    <h2 class="text-3xl font-semibold text-gray-700 mb-6 flex items-center">
+                        <i class="fas fa-comment mr-3 text-blue-500 text-2xl"></i> Text Comment Analysis
+                    </h2>
+                    <p class="mt-2 text-gray-800 text-lg"><strong>Comment:</strong> {{ comment }}</p>
+                    <p class="mt-1 text-gray-800 text-lg"><strong>Sentiment:</strong> <span class="font-bold capitalize text-xl">{{ sentiment }}</span></p>
 
-                {% if sentiment == 'positive' %}
-                    <img class="mx-auto w-80 h-80 rounded-full border-8 border-green-500 shadow-lg hover:scale-105 transform transition duration-500 ease-in-out" 
-                         src="https://cliply.co/wp-content/uploads/2021/03/392103580_BLUSHING_EMOJI_400px.gif" 
-                         alt="Positive GIF">
-                    <p class="text-2xl font-semibold text-green-600 mt-6">This comment exudes positivity! 🌟</p>
-                {% elif sentiment == 'negative' %}
-                    <img class="mx-auto w-80 h-80 rounded-full border-8 border-red-500 shadow-lg hover:scale-105 transform transition duration-500 ease-in-out" 
-                         src="https://cliply.co/wp-content/uploads/2021/03/392103840_SAD_EMOJI_WITH_TEAR_400px.gif" 
-                         alt="Negative GIF">
-                    <p class="text-2xl font-semibold text-red-600 mt-6">This comment has a negative tone. 💔</p>
-                {% elif sentiment == 'neutral' %}
-                    <img class="mx-auto w-80 h-80 rounded-full border-8 border-gray-500 shadow-lg hover:scale-105 transform transition duration-500 ease-in-out" 
-                         src="https://cliply.co/wp-content/uploads/2021/03/392103390_SAD_EMOJI_400px.gif" 
-                         alt="Neutral GIF">
-                    <p class="text-2xl font-semibold text-gray-600 mt-6">This comment is neutral. ⚖️</p>
-                {% endif %}
+                    <div class="mt-8 text-center">
+                        {% if sentiment == 'positive' %}
+                            <img class="mx-auto w-48 h-48 rounded-full border-4 border-green-500 shadow-lg animate-bounce" 
+                                 src="https://cliply.co/wp-content/uploads/2021/03/392103580_BLUSHING_EMOJI_400px.gif" 
+                                 alt="Positive Emoji">
+                            <p class="text-4xl font-semibold text-green-600 mt-6">This comment exudes positivity! 🌟</p>
+                        {% elif sentiment == 'negative' %}
+                            <img class="mx-auto w-48 h-48 rounded-full border-4 border-red-500 shadow-lg animate-bounce" 
+                                 src="https://cliply.co/wp-content/uploads/2021/03/392103840_SAD_EMOJI_WITH_TEAR_400px.gif" 
+                                 alt="Negative Emoji">
+                            <p class="text-4xl font-semibold text-red-600 mt-6">This comment has a negative tone. 💔</p>
+                        {% elif sentiment == 'neutral' %}
+                            <img class="mx-auto w-48 h-48 rounded-full border-4 border-gray-500 shadow-lg animate-bounce" 
+                                 src="https://cliply.co/wp-content/uploads/2021/03/392103390_SAD_EMOJI_400px.gif" 
+                                 alt="Neutral Emoji">
+                            <p class="text-4xl font-semibold text-gray-600 mt-6">This comment is neutral. ⚖️</p>
+                        {% endif %}
+                    </div>
+                </div>
             </section>
         {% endif %}
 
         <!-- YouTube Analysis -->
         {% if youtube_url %}
-            <section class="mb-8">
-                <h2 class="text-2xl font-semibold text-gray-700">YouTube Analysis</h2>
-                <p class="mt-2"><strong>URL:</strong> <a href="{{ youtube_url }}" class="text-blue-600 underline" target="_blank">{{ youtube_url }}</a></p>
-                
-                {% if youtube_sentiment.message %}
-                    <p class="mt-2 text-red-600">{{ youtube_sentiment.message }}</p>
-                {% else %}
-                    <p class="mt-2"><strong>Total Comments:</strong> {{ youtube_sentiment.total_comments }}</p>
-                    <ul class="list-disc list-inside">
-                        <li>Positive: {{ youtube_sentiment.sentiments.positive }}%</li>
-                        <li>Neutral: {{ youtube_sentiment.sentiments.neutral }}%</li>
-                        <li>Negative: {{ youtube_sentiment.sentiments.negative }}%</li>
-                    </ul>
+            <section class="mb-10">
+                <div class="bg-gradient-to-r from-green-100 to-teal-100 rounded-3xl p-8 shadow-xl ">
+                    <h2 class="text-3xl font-semibold text-gray-700 mb-6 flex items-center">
+                        <i class="fab fa-youtube mr-3 text-red-600 text-2xl"></i> YouTube Analysis
+                    </h2>
+                    <p class="mt-2 text-gray-800 text-lg"><strong>URL:</strong> <a href="{{ youtube_url }}" class="text-blue-600 underline" target="_blank">{{ youtube_url }}</a></p>
+                    
+                    {% if youtube_sentiment.message %}
+                        <p class="mt-4 text-red-600 text-lg">{{ youtube_sentiment.message }}</p>
+                    {% else %}
+                        <div class="mt-6 grid grid-cols-1 md:grid-cols-3 gap-8">
+                            <div class="bg-green-100 rounded-lg p-6 text-center sentiment-card">
+                                <img src="https://cliply.co/wp-content/uploads/2021/03/392103580_BLUSHING_EMOJI_400px.gif" alt="Positive Emoji" class="w-32 h-32 mx-auto mb-4 animate-bounce">
+                                <h3 class="text-2xl font-semibold text-green-700">Positive</h3>
+                                <p class="text-4xl font-bold text-green-600">{{ youtube_sentiment.sentiments.positive }}%</p>
+                            </div>
+                            <div class="bg-gray-100 rounded-lg p-6 text-center sentiment-card">
+                                <img src="https://cliply.co/wp-content/uploads/2021/03/392103390_SAD_EMOJI_400px.gif" alt="Neutral Emoji" class="w-32 h-32 mx-auto mb-4 animate-bounce">
+                                <h3 class="text-2xl font-semibold text-gray-700">Neutral</h3>
+                                <p class="text-4xl font-bold text-gray-600">{{ youtube_sentiment.sentiments.neutral }}%</p>
+                            </div>
+                            <div class="bg-red-100 rounded-lg p-6 text-center sentiment-card">
+                                <img src="https://cliply.co/wp-content/uploads/2021/03/392103840_SAD_EMOJI_WITH_TEAR_400px.gif" alt="Negative Emoji" class="w-32 h-32 mx-auto mb-4 animate-bounce">
+                                <h3 class="text-2xl font-semibold text-red-700">Negative</h3>
+                                <p class="text-4xl font-bold text-red-600">{{ youtube_sentiment.sentiments.negative }}%</p>
+                            </div>
+                        </div>
 
-                    <h3 class="mt-4 text-xl font-semibold text-gray-700">Sample Comments:</h3>
-                    <ul class="list-disc list-inside">
-                        {% for comment in youtube_comments %}
-                            <li>{{ comment }}</li>
-                        {% endfor %}
-                    </ul>
-                {% endif %}
+                        <div class="mt-8 flex justify-between items-center">
+                            <h3 class="text-2xl font-semibold text-gray-700">Sample Comments:</h3>
+                            <p class="text-lg text-gray-600"><strong>Total Comments:</strong> {{ youtube_sentiment.total_comments }}</p>
+                        </div>
+                        <div class="mt-4 h-80 overflow-y-scroll scrollbar-thin scrollbar-thumb-rounded scrollbar-track-rounded bg-white p-6 rounded-lg shadow-inner">
+                            <ul class="space-y-3">
+                                {% for comment in youtube_comments %}
+                                    <li class="p-3 border-b border-gray-200 text-lg">{{ comment }}</li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                    {% endif %}
+                </div>
             </section>
         {% endif %}
 
-        <!-- Instagram Analysis -->
-        {% if instagram_url %}
-            <section class="mb-8">
-                <h2 class="text-2xl font-semibold text-gray-700">Instagram Analysis</h2>
-                <p class="mt-2"><strong>URL:</strong> <a href="{{ instagram_url }}" class="text-blue-600 underline" target="_blank">{{ instagram_url }}</a></p>
-                
-                {% if instagram_sentiment.message %}
-                    <p class="mt-2 text-red-600">{{ instagram_sentiment.message }}</p>
-                {% else %}
-                    <p class="mt-2"><strong>Total Comments:</strong> {{ instagram_sentiment.total_comments }}</p>
-                    <ul class="list-disc list-inside">
-                        <li>Positive: {{ instagram_sentiment.sentiments.positive }}%</li>
-                        <li>Neutral: {{ instagram_sentiment.sentiments.neutral }}%</li>
-                        <li>Negative: {{ instagram_sentiment.sentiments.negative }}%</li>
-                    </ul>
-
-                    <h3 class="mt-4 text-xl font-semibold text-gray-700">Sample Comments:</h3>
-                    <ul class="list-disc list-inside">
-                        {% for comment in instagram_comments %}
-                            <li>{{ comment }}</li>
-                        {% endfor %}
-                    </ul>
-                {% endif %}
-            </section>
-        {% endif %}
 
         <!-- File Upload Analysis -->
         {% if file_sentiment %}
-            <section class="mb-8">
-                <h2 class="text-2xl font-semibold text-gray-700">File Upload Analysis</h2>
-                <p class="mt-2"><strong>Filename:</strong> {{ file_sentiment.filename }}</p>
-                <p><strong>Sentiment Analysis:</strong></p>
-                <ul class="list-disc list-inside">
-                    <li>Positive: {{ file_sentiment.sentiments.positive }}%</li>
-                    <li>Neutral: {{ file_sentiment.sentiments.neutral }}%</li>
-                    <li>Negative: {{ file_sentiment.sentiments.negative }}%</li>
-                </ul>
+            <section class="mb-10">
+                <div class="bg-gradient-to-r from-indigo-100 to-purple-150 rounded-3xl p-8 shadow-xl ">
+                    <h2 class="text-3xl font-semibold text-gray-700 mb-6 flex items-center">
+                        <i class="fas fa-file-alt mr-3 text-indigo-500 text-2xl"></i> File Analysis: {{ file_sentiment.filename }}
+                    </h2>
 
-                <h3 class="mt-4 text-xl font-semibold text-gray-700">Sample Text:</h3>
-                <ul class="list-disc list-inside">
-                    {% for line in file_sentiment.sample_text %}
-                        <li>{{ line }}</li>
-                    {% endfor %}
-                </ul>
+                    <!-- Overall Sentiment -->
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
+                        <div class="bg-green-100 rounded-lg p-6 text-center sentiment-card">
+                            <img src="https://cliply.co/wp-content/uploads/2021/03/392103580_BLUSHING_EMOJI_400px.gif" alt="Positive Emoji" class="w-32 h-32 mx-auto mb-4 animate-bounce">
+                            <h3 class="text-2xl font-semibold text-green-700">Positive</h3>
+                            <p class="text-4xl font-bold text-green-600">{{ file_sentiment.sentiments.sentiments.positive }}%</p>
+                        </div>
+                        <div class="bg-gray-100 rounded-lg p-6 text-center sentiment-card">
+                            <img src="https://cliply.co/wp-content/uploads/2021/03/392103390_SAD_EMOJI_400px.gif" alt="Neutral Emoji" class="w-32 h-32 mx-auto mb-4 animate-bounce">
+                            <h3 class="text-2xl font-semibold text-gray-700">Neutral</h3>
+                            <p class="text-4xl font-bold text-gray-600">{{ file_sentiment.sentiments.sentiments.neutral }}%</p>
+                        </div>
+                        <div class="bg-red-100 rounded-lg p-6 text-center sentiment-card">
+                            <img src="https://cliply.co/wp-content/uploads/2021/03/392103840_SAD_EMOJI_WITH_TEAR_400px.gif" alt="Negative Emoji" class="w-32 h-32 mx-auto mb-4 animate-bounce">
+                            <h3 class="text-2xl font-semibold text-red-700">Negative</h3>
+                            <p class="text-4xl font-bold text-red-600">{{ file_sentiment.sentiments.sentiments.negative }}%</p>
+                        </div>
+                    </div>
+
+                    <!-- Paragraph Analysis -->
+                    <div class="space-y-6">
+                        <h3 class="text-2xl font-semibold text-gray-700 mb-6 flex items-center">
+                            <i class="fas fa-paragraph mr-3 text-indigo-500 text-2xl"></i> Paragraph Analysis
+                        </h3>
+                        {% for analysis in file_sentiment.sentiments.paragraph_analysis %}
+                            <div class="bg-white rounded-lg p-6 shadow sentiment-card
+                                      {% if analysis.sentiment == 'positive' %}border-l-4 border-green-500{% endif %}
+                                      {% if analysis.sentiment == 'neutral' %}border-l-4 border-gray-500{% endif %}
+                                      {% if analysis.sentiment == 'negative' %}border-l-4 border-red-500{% endif %}">
+                                <p class="text-gray-800 mb-4 text-lg">{{ analysis.text }}</p>
+                                <div class="flex items-center">
+                                    <span class="text-md font-medium
+                                               {% if analysis.sentiment == 'positive' %}text-green-600{% endif %}
+                                               {% if analysis.sentiment == 'neutral' %}text-gray-600{% endif %}
+                                               {% if analysis.sentiment == 'negative' %}text-red-600{% endif %}">
+                                        <i class="fas {% if analysis.sentiment == 'positive' %}fa-smile{% elif analysis.sentiment == 'neutral' %}fa-meh{% else %}fa-frown{% endif %} mr-3 text-xl"></i>
+                                        {{ analysis.sentiment|title }}
+                                    </span>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
             </section>
         {% endif %}
         
-        <footer class="mt-12 text-center">
-            <p class="text-sm text-gray-700">
+        <footer class="mt-16 text-center">
+            <a href="/" class="inline-block bg-gradient-to-r from-blue-600 to-purple-600 text-white font-bold text-lg py-3 px-8 rounded-lg hover:from-blue-700 hover:to-purple-700 transition duration-300 mb-6">
+                <i class="fas fa-arrow-left mr-3"></i> Back to Analysis
+            </a>
+            <p class="text-md text-gray-700">
                 &copy; 2024 NLP | Designed with ❤️ and creativity.
             </p>
         </footer>

@@ -21,12 +21,21 @@ class SentimentService:
         prediction = self.model.predict(features)[0]
         return get_sentiment_label(prediction)
 
-    def analyze_sentiments(self, comments):
+    def analyze_sentiments(self, paragraphs):
+        if isinstance(paragraphs, str):
+            paragraphs = [paragraphs]
+            
         sentiments = {"positive": 0, "neutral": 0, "negative": 0}
-        for comment in comments:
-            processed_comment = self.preprocess_comment(comment)
+        paragraph_sentiments = []  # Store sentiment for each paragraph
+        
+        for paragraph in paragraphs:
+            processed_comment = self.preprocess_comment(paragraph)
             sentiment = self.get_sentiment(processed_comment)
             sentiments[sentiment] += 1
+            paragraph_sentiments.append({
+                "text": paragraph[:200] + "..." if len(paragraph) > 200 else paragraph,
+                "sentiment": sentiment
+            })
 
         total = sum(sentiments.values())
         if total == 0:
@@ -35,5 +44,9 @@ class SentimentService:
         sentiment_percentages = {
             k: round(v / total * 100, 2) for k, v in sentiments.items()
         }
-        return {"total_comments": total, "sentiments": sentiment_percentages}
-
+        
+        return {
+            "total_paragraphs": total,
+            "sentiments": sentiment_percentages,
+            "paragraph_analysis": paragraph_sentiments
+        }

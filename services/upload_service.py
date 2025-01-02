@@ -1,11 +1,10 @@
 import os
 from werkzeug.utils import secure_filename
-from utils.preprocess import preprocess_file_content
+from utils.preprocess import preprocess_file_content, split_into_paragraphs
 from services.sentiment_service import SentimentService
 import logging
 import PyPDF2
 
-# Define the logger for this module
 logger = logging.getLogger(__name__)
 
 class UploadService:
@@ -48,33 +47,21 @@ class UploadService:
             logger.error(f"Error reading the file: {e}")
             raise ValueError("Error reading the file. Please ensure it's a valid text or PDF file.")
 
-        # Check if content is empty after reading
         if not content:
             logger.warning("File content is empty.")
             raise ValueError("The file is empty or does not contain valid text.")
 
-        # Preprocess the entire content for sentiment analysis
+        # Split content into paragraphs and analyze each
         try:
-            preprocessed_content = preprocess_file_content(content, apply_stemming=False)
-            logger.info("File content preprocessed successfully.")
-        except (TypeError, ValueError) as e:
-            logger.error(f"Preprocessing error: {e}")
-            raise ValueError(f"Preprocessing error: {e}")
-
-        # Perform sentiment analysis on the entire content
-        try:
-            sentiments = self.sentiment_service.analyze_sentiments([preprocessed_content])  # Pass as a list with one item
+            paragraphs = split_into_paragraphs(content)
+            sentiments = self.sentiment_service.analyze_sentiments(paragraphs)
             logger.info("Sentiment analysis completed.")
         except Exception as e:
             logger.error(f"Sentiment analysis error: {e}")
             raise ValueError("Error during sentiment analysis.")
 
-        # Prepare a sample text (e.g., first 500 characters)
-        sample_text = preprocessed_content[:500] + '...' if len(preprocessed_content) > 500 else preprocessed_content
-        logger.info("Sample text prepared.")
-
         logger.info(f"File processed successfully: {filename}")
-        return filename, sentiments, sample_text
+        return filename, sentiments, paragraphs
 
     def extract_text_from_pdf(self, file):
         pdf_reader = PyPDF2.PdfReader(file)

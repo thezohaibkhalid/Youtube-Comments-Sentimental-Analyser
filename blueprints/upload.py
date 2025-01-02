@@ -2,7 +2,6 @@
 
 from flask import Blueprint, render_template, request
 from services.upload_service import UploadService
-import os
 
 upload_bp = Blueprint('upload', __name__)
 
@@ -31,7 +30,8 @@ def analyze_upload():
         error_message = "An error occurred while processing the file."
         return render_template("result.html", error=error_message), 500
     finally:
-        upload_service.close()  # Does nothing now
+        # Removed upload_service.close() as it does nothing now
+        pass
     
     # Prepare the data for rendering
     file_sentiment = {

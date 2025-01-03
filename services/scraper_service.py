@@ -15,20 +15,46 @@ async def scrape_reviews(url):
         title = await page.title()
         print(f"Page Title: {title}")
 
-        await page.wait_for_selector('.w8nwRe', timeout=60000)
-        more_buttons = await page.query_selector_all('.w8nwRe')
-        if more_buttons is not None:
-            for button in more_buttons:
-                await button.click()
-                await page.wait_for_timeout(1000)
+        # Scroll to load more reviews and click "See more reviews" button if it exists
+        for _ in range(10):  # Adjust number of scrolls based on how much content you want
+            await page.evaluate("window.scrollTo(0, document.body.scrollHeight)")
+            await page.wait_for_timeout(2000)  # Wait for new content to load
 
+            # Try to click "See more reviews" button if it exists
+            try:
+                more_button = await page.query_selector('button[aria-label="See more reviews"]')
+                if more_button:
+                    await more_button.click()
+                    await page.wait_for_timeout(2000)  # Wait for new reviews to load
+            except:
+                pass  
+
+        # Wait for review elements to load
         await page.wait_for_selector('.jftiEf', timeout=60000)
         elements = await page.query_selector_all('.jftiEf')
+        
         for element in elements:
-            await page.wait_for_selector('.MyEned')
-            snippet = await element.query_selector('.MyEned')
-            text = await page.evaluate("selected => selected.textContent", snippet)
-            reviews.append(text)
+            try:
+                # Extract review text
+                snippet = await element.query_selector('.MyEned')
+                text = await snippet.inner_text() if snippet else ""
+
+                # Extract author name
+                author_element = await element.query_selector('.d4r55')
+                author = await author_element.inner_text() if author_element else "Anonymous"
+
+                # Extract rating
+                rating_element = await element.query_selector('.kvMYJc')
+                rating = await rating_element.get_attribute('aria-label') if rating_element else "No rating"
+                rating = rating.split(' ')[0] if rating else "N/A"
+
+                reviews.append({
+                    "text": text,
+                    "author": author,
+                    "rating": rating
+                })
+            except Exception as e:
+                print(f"Error extracting review: {e}")
 
         await browser.close()
     return reviews, title
@@ -49,7 +75,8 @@ def analyze_sentiments(reviews):
 
 async def scrape_and_analyze(url):
     reviews, title = await scrape_reviews(url)
-    sentiments = analyze_sentiments(reviews)
+    review_texts = [review['text'] for review in reviews]
+    sentiments = analyze_sentiments(review_texts)
     
     total_reviews = len(sentiments)
     positive = sum(1 for sentiment in sentiments if sentiment == 'positive')
@@ -66,6 +93,5 @@ async def scrape_and_analyze(url):
         'title': title,
         'total_reviews': total_reviews,
         'sentiment_percentages': sentiment_percentages,
-        'reviews': reviews[:10]  # Return only the first 10 reviews
+        'reviews': reviews[:20]  # Limiting the number of reviews displayed
     }
-

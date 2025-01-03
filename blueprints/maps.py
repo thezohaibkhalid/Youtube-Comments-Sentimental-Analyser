@@ -6,7 +6,7 @@ import logging
 maps_bp = Blueprint('maps', __name__)
 logger = logging.getLogger(__name__)
 
-@maps_bp.route('/maps', methods=['POST'])
+@maps_bp.route('/analyze_maps', methods=['POST'])
 def analyze_maps():
     googlemaps_url = request.form.get('googlemaps_url')
     

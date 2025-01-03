@@ -1,4 +1,3 @@
-#youtube service py
 from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
 from config.settings import Config

@@ -1,11 +1,9 @@
-# app.py
-
 from flask import Flask, render_template
 from config.settings import Config
-from blueprints.analyze import analyze_bp  # Assuming you have this blueprint
+from blueprints.analyze import analyze_bp  
 from blueprints.youtube import youtube_bp
-from blueprints.instagram import instagram_bp  # Assuming you have this blueprint
-from blueprints.upload import upload_bp  # If you have this blueprint
+from blueprints.maps import maps_bp   
+from blueprints.upload import upload_bp  
 from dotenv import load_dotenv
 import os
 import nltk
@@ -14,10 +12,8 @@ def create_app():
 
     load_dotenv()
 
-    # Initialize NLTK data
     nltk.download("stopwords", quiet=True)
 
-    # Initialize Flask app
     app = Flask(__name__)
     app.config.from_object(Config)
 
@@ -32,8 +28,8 @@ def create_app():
     # Register Blueprints
     app.register_blueprint(analyze_bp)
     app.register_blueprint(youtube_bp)
-    app.register_blueprint(instagram_bp)
-    app.register_blueprint(upload_bp)  # Register the upload blueprint if it exists
+    app.register_blueprint(maps_bp)
+    app.register_blueprint(upload_bp)  
 
     # Home route
     @app.route("/")

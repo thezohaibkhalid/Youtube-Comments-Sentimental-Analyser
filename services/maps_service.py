@@ -1,84 +1,96 @@
-# services/instagram_service.py
-
+import re
+import logging
 import os
-import time
-from playwright.sync_api import sync_playwright
-from utils.instagram_utils import extract_instagram_shortcode
+import requests
+from utils.preprocess import preprocess_comment
+from nltk.sentiment.vader import SentimentIntensityAnalyzer
+import nltk
 
+# Ensure NLTK data is downloaded
+nltk.download('vader_lexicon')
 
-class InstagramService:
-    def __init__(self):
-        self.username = os.getenv("INSTAGRAM_USERNAME")
-        self.password = os.getenv("INSTAGRAM_PASSWORD")
-        if not self.username or not self.password:
-            raise ValueError("Instagram credentials not found in environment variables.")
-        
-        self.playwright = sync_playwright().start()
-        self.browser = self.playwright.chromium.launch(headless=True)  # Set headless=False for debugging
-        self.context = self.browser.new_context(viewport={"width": 1920, "height": 1080})
-        self.page = self.context.new_page()
-        self._login()
+logger = logging.getLogger(__name__)
 
-    def _login(self):
-        page = self.page
-        page.goto("https://www.instagram.com/accounts/login/")
-        page.wait_for_timeout(3000)  # Wait for the login page to load
+GOOGLE_MAPS_API_KEY = os.getenv('GOOGLE_MAPS_API_KEY')
 
-        # Enter username
-        page.fill("input[name='username']", self.username)
+if not GOOGLE_MAPS_API_KEY:
+    logger.error("Google Maps API key not found. Please set the GOOGLE_MAPS_API_KEY environment variable.")
+    raise ValueError("Google Maps API key not found. Please set the GOOGLE_MAPS_API_KEY environment variable.")
 
-        # Enter password
-        page.fill("input[name='password']", self.password)
-        page.press("input[name='password']", "Enter")
-        page.wait_for_timeout(5000)  # Wait for login to complete
+def extract_place_id(embed_url):
+    try:
+        match = re.search(r'2s([^!]+)', embed_url)
+        if match:
+            place_name = match.group(1).replace('%20', ' ')
+            logger.info(f"Extracted place name: {place_name}")
+            place_id = get_place_id(place_name)
+            return place_id
+        else:
+            logger.error("Place name not found in the embed URL.")
+            return None
+    except Exception as e:
+        logger.error(f"Error extracting Place ID: {e}")
+        return None
 
-        # Handle "Save Your Login Info?" popup
-        try:
-            page.locator("text=Not Now").click(timeout=3000)
-        except:
-            pass
+def get_place_id(place_name):
+    try:
+        url = "https://maps.googleapis.com/maps/api/place/findplacefromtext/json"
+        params = {
+            'input': place_name,
+            'inputtype': 'textquery',
+            'fields': 'place_id',
+            'key': GOOGLE_MAPS_API_KEY
+        }
+        response = requests.get(url, params=params)
+        data = response.json()
+        if data.get('status') == 'OK' and data.get('candidates'):
+            place_id = data['candidates'][0]['place_id']
+            logger.info(f"Obtained Place ID: {place_id}")
+            return place_id
+        else:
+            logger.error(f"Places API error: {data.get('status')}")
+            return None
+    except Exception as e:
+        logger.error(f"Error getting Place ID: {e}")
+        return None
 
-        # Handle "Turn on Notifications" popup
-        try:
-            page.locator("text=Not Now").click(timeout=3000)
-        except:
-            pass
+def fetch_google_maps_reviews(place_id):
+    try:
+        url = "https://maps.googleapis.com/maps/api/place/details/json"
+        params = {
+            'place_id': place_id,
+            'fields': 'review',
+            'key': GOOGLE_MAPS_API_KEY
+        }
+        response = requests.get(url, params=params)
+        data = response.json()
+        if data.get('status') == 'OK':
+            reviews = data['result'].get('reviews', [])
+            formatted_reviews = [{'author': review.get('author_name'), 'rating': review.get('rating'), 'text': review.get('text')} for review in reviews]
+            logger.info(f"Fetched {len(formatted_reviews)} reviews.")
+            return formatted_reviews
+        else:
+            logger.error(f"Place Details API error: {data.get('status')}")
+            return []
+    except Exception as e:
+        logger.error(f"Error fetching reviews: {e}")
+        return []
 
-    def extract_instagram_shortcode(self, url):
-        return extract_instagram_shortcode(url)
-
-    def get_instagram_comments(self, shortcode, max_comments=100):
-        page = self.page
-        post_url = f"https://www.instagram.com/p/{shortcode}/"
-        page.goto(post_url)
-        page.wait_for_timeout(5000)  # Wait for the post page to load
-
-        comments = set()
-        last_height = None
-
-        while len(comments) < max_comments:
-            # Parse comments
-            comment_elements = page.locator("//ul[@class='Mr508']/div/li/div/div/div/span")
-            for i in range(comment_elements.count()):
-                comment_text = comment_elements.nth(i).inner_text().strip()
-                if comment_text:
-                    comments.add(comment_text)
-                    if len(comments) >= max_comments:
-                        break
-
-            # Scroll down to load more comments
-            page.evaluate("window.scrollTo(0, document.body.scrollHeight);")
-            time.sleep(3)  # Wait for comments to load
-
-            # Check if we've reached the end
-            new_height = page.evaluate("document.body.scrollHeight")
-            if new_height == last_height:
-                break  # No more comments to load
-            last_height = new_height
-
-        return list(comments)[:max_comments]
-
-    def close(self):
-        self.context.close()
-        self.browser.close()
-        self.playwright.stop()
+def analyze_sentiments(reviews):
+    try:
+        sia = SentimentIntensityAnalyzer()
+        sentiments = []
+        for review in reviews:
+            score = sia.polarity_scores(review)
+            compound = score['compound']
+            if compound >= 0.05:
+                sentiments.append('positive')
+            elif compound <= -0.05:
+                sentiments.append('negative')
+            else:
+                sentiments.append('neutral')
+        logger.info(f"Sentiment analysis completed for {len(sentiments)} reviews.")
+        return sentiments
+    except Exception as e:
+        logger.error(f"Error during sentiment analysis: {e}")
+        return []

@@ -1,104 +1,137 @@
-let activeSection = "text";
+let activeSection = 'youtube';
 
 function setActiveSection(section) {
-  activeSection = section;
-  updateButtonStyles(section);
-  toggleSections(section);
-  updateFormAction(section);
-  clearOtherInputs(section);
+  const sections = ['youtube', 'googlemaps', 'text', 'file'];
+  sections.forEach(s => {
+    const sectionElement = document.getElementById(`${s}Section`);
+    const buttonElement = document.getElementById(`${s}SectionBtn`);
+    if (s === section) {
+      sectionElement.classList.remove('hidden');
+      buttonElement.classList.remove('bg-gray-200', 'text-gray-700');
+      buttonElement.classList.add('bg-blue-500', 'text-white');
+      activeSection = section;
+    } else {
+      sectionElement.classList.add('hidden');
+      buttonElement.classList.remove('bg-blue-500', 'text-white');
+      buttonElement.classList.add('bg-gray-200', 'text-gray-700');
+    }
+  });
+  updateFormAction();
 }
 
-function updateButtonStyles(section) {
-  document.getElementById('youtubeBtn').className = `flex-1 py-3 px-6 rounded-lg font-semibold transition duration-300 ${
-    section === 'youtube' ? 'youtube-gradient text-white' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-  }`;
-  document.getElementById('instagramBtn').className = `flex-1 py-3 px-6 rounded-lg font-semibold transition duration-300 ${
-    section === 'instagram' ? 'instagram-gradient text-white' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-  }`;
-  document.getElementById('textBtn').className = `flex-1 py-3 px-6 rounded-lg font-semibold transition duration-300 ${
-    section === 'text' ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-  }`;
-  document.getElementById('fileBtn').className = `flex-1 py-3 px-6 rounded-lg font-semibold transition duration-300 ${
-    section === 'file' ? 'file-upload-gradient text-white' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-  }`;
-}
-
-function toggleSections(section) {
-  document.getElementById('youtubeSection').classList.toggle('hidden', section !== 'youtube');
-  document.getElementById('instagramSection').classList.toggle('hidden', section !== 'instagram');
-  document.getElementById('textSection').classList.toggle('hidden', section !== 'text');
-  document.getElementById('fileSection').classList.toggle('hidden', section !== 'file');
-}
-
-function updateFormAction(section) {
+function updateFormAction() {
   const form = document.getElementById('inputForm');
-  if (section === 'youtube') {
-    form.action = '/youtube';
-  } else if (section === 'instagram') {
-    form.action = '/instagram';
-  } else if (section === 'file') {
-    form.action = '/upload';
-  } else {
-    form.action = '/analyze';
+  switch (activeSection) {
+    case 'youtube':
+      form.action = '/youtube';
+      break;
+    case 'googlemaps':
+      form.action = '/maps';
+      break;
+    case 'text':
+      form.action = '/analyze';
+      break;
+    case 'file':
+      form.action = '/upload';
+      break;
   }
 }
 
-function clearOtherInputs(section) {
-  if (section !== 'youtube') {
-    document.getElementById('youtubeLink').value = '';
-    document.getElementById('youtubeIframe').src = '';
-    document.getElementById('youtubeEmbed').classList.add('hidden');
-  }
-  if (section !== 'instagram') {
-    document.getElementById('instagramLink').value = '';
-    document.getElementById('instagramIframe').src = '';
-    document.getElementById('instagramEmbed').classList.add('hidden');
-  }
-  if (section !== 'text') {
-    document.getElementById('textInput').value = '';
-  }
-  if (section !== 'file') {
-    document.getElementById('fileInput').value = '';
-  }
+function getYouTubeVideoId(url) {
+  const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
+  const match = url.match(regExp);
+  return (match && match[2].length === 11) ? match[2] : null;
 }
 
-// Initialize default section
-setActiveSection('text');
+function embedYouTubeVideo(videoId) {
+  const embedUrl = `https://www.youtube.com/embed/${videoId}`;
+  document.getElementById('youtubeIframe').src = embedUrl;
+  document.getElementById('youtubeEmbed').classList.remove('hidden');
+}
 
-// YouTube Link Input Handling
+function isValidGoogleMapsUrl(url) {
+  return url.startsWith('https://www.google.com/maps/embed') || url.startsWith('https://goo.gl/maps/');
+}
+
+function embedGoogleMaps(url) {
+  let embedUrl = url;
+  if (url.startsWith('https://goo.gl/maps/')) {
+     embedUrl = `https://www.google.com/maps/embed?pb=${url.split('/').pop()}`;
+  }
+  document.getElementById('googlemapsIframe').src = embedUrl;
+  document.getElementById('googlemapsEmbed').classList.remove('hidden');
+}
+
 document.getElementById('youtubeLink').addEventListener('input', function() {
-  const youtubeLink = this.value;
-  const videoId = extractYoutubeVideoId(youtubeLink);
+  const videoId = getYouTubeVideoId(this.value);
   if (videoId) {
-    document.getElementById('youtubeEmbed').classList.remove('hidden');
-    document.getElementById('youtubeIframe').src = `https://www.youtube.com/embed/${videoId}`;
+    document.getElementById('youtubeVideoId').value = videoId;
+    embedYouTubeVideo(videoId);
   } else {
     document.getElementById('youtubeEmbed').classList.add('hidden');
-    document.getElementById('youtubeIframe').src = '';
   }
 });
 
-function extractYoutubeVideoId(url) {
-  const regex = /(?:https?:\/\/(?:www\.)?(?:youtube\.com\/(?:[^\/]+\/\S+\/|(?:v|e(?:mbed)?)\/|\S*?[?&]v=))|youtu\.be\/)([a-zA-Z0-9_-]{11})/;
-  const match = url.match(regex);
-  return match ? match[1] : null;
-}
-
-// Instagram Link Input Handling
-document.getElementById('instagramLink').addEventListener('input', function() {
-  const instagramLink = this.value;
-  const postId = extractInstagramPostId(instagramLink);
-  if (postId) {
-    document.getElementById('instagramEmbed').classList.remove('hidden');
-    document.getElementById('instagramIframe').src = `https://www.instagram.com/p/${postId}/embed`;
+document.getElementById('googlemapsLink').addEventListener('input', function() {
+  if (isValidGoogleMapsUrl(this.value)) {
+    embedGoogleMaps(this.value);
   } else {
-    document.getElementById('instagramEmbed').classList.add('hidden');
-    document.getElementById('instagramIframe').src = '';
+    document.getElementById('googlemapsEmbed').classList.add('hidden');
   }
 });
 
-function extractInstagramPostId(url) {
-  const regex = /(?:https?:\/\/(?:www\.)?instagram\.com\/p\/([a-zA-Z0-9_-]+)\/)/;
-  const match = url.match(regex);
-  return match ? match[1] : null;
-}
+document.getElementById('inputForm').addEventListener('submit', function(e) {
+  e.preventDefault();
+  
+  const youtubeLink = document.getElementById('youtubeLink').value;
+  const googlemapsLink = document.getElementById('googlemapsLink').value;
+  const textInput = document.getElementById('textInput').value;
+  const fileInput = document.getElementById('fileInput').value;
+
+  let isValid = false;
+
+  switch (activeSection) {
+    case 'youtube':
+      isValid = youtubeLink && getYouTubeVideoId(youtubeLink);
+      break;
+    case 'googlemaps':
+      isValid = googlemapsLink && isValidGoogleMapsUrl(googlemapsLink);
+      break;
+    case 'text':
+      isValid = textInput.trim() !== '';
+      break;
+    case 'file':
+      isValid = fileInput !== '';
+      break;
+  }
+
+  if (isValid) {
+    this.submit();
+  } else {
+    alert('Please provide valid input for analysis.');
+  }
+});
+
+ setActiveSection('youtube');
+
+ document.getElementById('youtubeLink').addEventListener('keypress', function(e) {
+  if (e.key === 'Enter') {
+    e.preventDefault();
+    document.getElementById('submitBtn').click();
+  }
+});
+
+document.getElementById('googlemapsLink').addEventListener('keypress', function(e) {
+  if (e.key === 'Enter') {
+    e.preventDefault();
+    document.getElementById('submitBtn').click();
+  }
+});
+
+document.getElementById('textInput').addEventListener('keypress', function(e) {
+  if (e.key === 'Enter' && !e.shiftKey) {
+    e.preventDefault();
+    document.getElementById('submitBtn').click();
+  }
+});
+

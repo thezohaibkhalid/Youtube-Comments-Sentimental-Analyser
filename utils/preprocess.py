@@ -5,13 +5,6 @@ from nltk.stem import PorterStemmer
 
 logger = logging.getLogger(__name__)
 
-def split_into_paragraphs(text):
-    """Split text into paragraphs based on double newlines"""
-    paragraphs = [p.strip() for p in text.split('\n\n') if p.strip()]
-    if not paragraphs:  # If no double newlines, try single newlines
-        paragraphs = [p.strip() for p in text.split('\n') if p.strip()]
-    return paragraphs
-
 def remove_stopwords(text, stopwords):
     words = [word for word in text.split() if word not in stopwords]
     return " ".join(words)
@@ -37,25 +30,24 @@ def preprocess_file_content(content, apply_stemming=False):
         logger.error("ValueError: Content is empty.")
         raise ValueError("Content is empty.")
     
-    # Split content into paragraphs
-    paragraphs = split_into_paragraphs(content)
-    
     stopwords_english = set(stopwords.words("english"))
     stemmer = PorterStemmer() if apply_stemming else None
+    processed_content = preprocess_comment(content, stopwords_english, stemmer, apply_stemming)
+    logger.debug(f"Processed Content: {processed_content[:100]}...")  # First 100 chars
     
-    # Process each paragraph
-    processed_paragraphs = []
-    for paragraph in paragraphs:
-        processed = preprocess_comment(paragraph, stopwords_english, stemmer, apply_stemming)
-        if processed.strip():  # Only add non-empty paragraphs
-            processed_paragraphs.append(processed)
-    
-    if not processed_paragraphs:
+    if not processed_content.strip():
         logger.error("ValueError: No valid content after preprocessing.")
         raise ValueError("No valid content after preprocessing.")
     
-    return processed_paragraphs
+    return processed_content
 
 def get_sentiment_label(prediction):
     labels = {0: "negative", 1: "neutral", 2: "positive"}
     return labels.get(prediction, "unknown")
+
+def split_into_paragraphs(text):
+    """Split text into paragraphs based on double newlines"""
+    paragraphs = [p.strip() for p in text.split('\n\n') if p.strip()]
+    if not paragraphs:  # If no double newlines, try single newlines
+        paragraphs = [p.strip() for p in text.split('\n') if p.strip()]
+    return paragraphs

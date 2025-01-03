@@ -1,0 +1,23 @@
+body {
+  font-family: "Roboto", sans-serif;
+}
+.youtube-gradient {
+  background: linear-gradient(135deg, #ff0000 0%, #ff5a5a 100%);
+}
+.maps-gradient {
+  background: linear-gradient(135deg, #4285F4 0%, #34A853 50%, #FBBC05 75%, #EA4335 100%);
+}
+.file-upload-gradient {
+  background: linear-gradient(
+    135deg,
+    #6a11cb 0%,
+    #2575fc 100%
+  );
+}
+.glass-effect {
+  background: rgba(255, 255, 255, 0.25);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+}
+ 

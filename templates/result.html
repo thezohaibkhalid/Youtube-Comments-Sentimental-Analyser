@@ -6,30 +6,7 @@
     <title>Sentiment Analysis Result</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <style>
-      body {
-        font-family: 'Roboto', sans-serif;
-      }
-      .sentiment-card {
-        transition: transform 0.3s ease, box-shadow 0.3s ease;
-      }
-      .sentiment-card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1);
-      }
-      /* Custom scrollbar for YouTube comments */
-      .scrollbar-thin::-webkit-scrollbar {
-        width: 8px;
-      }
-      .scrollbar-thumb-rounded::-webkit-scrollbar-thumb {
-        background-color: rgba(100, 100, 111, 0.3);
-        border-radius: 4px;
-      }
-      .scrollbar-track-rounded::-webkit-scrollbar-track {
-        background: transparent;
-        border-radius: 4px;
-      }
-    </style>
+    <link rel="stylesheet" href="../static/css/result.css">
 </head>
 <body class="bg-gray-100 min-h-screen font-sans px-6 py-8">
     <div class="bg-white rounded-3xl shadow-2xl max-w-7xl mx-auto p-12 mt-12">
@@ -48,7 +25,7 @@
         <!-- Text Comment Analysis -->
         {% if comment and sentiment %}
             <section class="mb-10">
-                <div class="bg-gradient-to-r from-blue-100 to-purple-100 rounded-3xl p-8 shadow-xl animate-bounce">
+                <div class="bg-gradient-to-r from-blue-100 to-purple-100 rounded-3xl p-8 shadow-xl ">
                     <h2 class="text-3xl font-semibold text-gray-700 mb-6 flex items-center">
                         <i class="fas fa-comment mr-3 text-blue-500 text-2xl"></i> Text Comment Analysis
                     </h2>
@@ -132,8 +109,8 @@
                 </h2>
                 <p class="mt-2"><strong>URL:</strong> <a href="{{ googlemaps_url }}" class="text-blue-600 underline" target="_blank">{{ googlemaps_url }}</a></p>
                 <p class="mt-2"><strong>Place Name:</strong> {{ place_name }}</p>
-                
                 <p class="mt-2"><strong>Total Reviews:</strong> {{ total_reviews }}</p>
+        
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4 my-6">
                     <div class="bg-green-50 rounded-lg p-4 text-center sentiment-card">
                         <img src="https://cliply.co/wp-content/uploads/2021/03/392103580_BLUSHING_EMOJI_400px.gif" alt="Positive Emoji" class="w-16 h-16 mx-auto mb-2">
@@ -151,17 +128,27 @@
                         <p class="text-3xl font-bold text-red-600">{{ sentiment_percentages.negative }}%</p>
                     </div>
                 </div>
-
+        
                 <h3 class="mt-4 text-xl font-semibold text-gray-700">Sample Reviews:</h3>
                 <div class="space-y-4 mt-2">
                     {% for review in reviews %}
-                        <div class="bg-white/90 rounded-lg p-4 shadow">
-                            <p class="text-gray-700 mb-2">{{ review }}</p>
+                        <div class="bg-white/90 rounded-lg p-4 shadow-lg">
+                            <div class="flex items-center space-x-2">
+                                <div class="w-10 h-10 rounded-full bg-gray-200"></div> <!-- Placeholder for avatar -->
+                                <div class="text-sm font-semibold text-gray-700">{{ review.author }}</div>
+                            </div>
+                            <div class="mt-2 text-gray-700 bg-blue-50 rounded-lg p-4">
+                                <p class="text-lg mb-2">{{ review.text }}</p>
+                                <div class="flex justify-end">
+                                    <span class="text-xs text-gray-500">{{ review.rating }} ★</span>
+                                </div>
+                            </div>
                         </div>
                     {% endfor %}
                 </div>
             </div>
         </section>
+        
         {% endif %}
 
         <!-- File Upload Analysis -->

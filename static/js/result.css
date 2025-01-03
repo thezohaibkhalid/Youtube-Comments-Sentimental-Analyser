@@ -1,0 +1,23 @@
+ body {
+  font-family: 'Roboto', sans-serif;
+}
+.sentiment-card {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+.sentiment-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1);
+}
+/* Custom scrollbar for YouTube comments */
+.scrollbar-thin::-webkit-scrollbar {
+  width: 8px;
+}
+.scrollbar-thumb-rounded::-webkit-scrollbar-thumb {
+  background-color: rgba(100, 100, 111, 0.3);
+  border-radius: 4px;
+}
+.scrollbar-track-rounded::-webkit-scrollbar-track {
+  background: transparent;
+  border-radius: 4px;
+}
+ 

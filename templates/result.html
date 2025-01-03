@@ -123,6 +123,46 @@
             </section>
         {% endif %}
 
+        <!-- Google Maps Analysis -->
+        {% if googlemaps_url %}
+        <section class="mb-8">
+            <div class="bg-white/80 rounded-xl p-6 shadow-lg">
+                <h2 class="text-2xl font-semibold text-gray-700 mb-4">
+                    <i class="fab fa-google mr-2 text-blue-600"></i>Google Maps Analysis
+                </h2>
+                <p class="mt-2"><strong>URL:</strong> <a href="{{ googlemaps_url }}" class="text-blue-600 underline" target="_blank">{{ googlemaps_url }}</a></p>
+                <p class="mt-2"><strong>Place Name:</strong> {{ place_name }}</p>
+                
+                <p class="mt-2"><strong>Total Reviews:</strong> {{ total_reviews }}</p>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 my-6">
+                    <div class="bg-green-50 rounded-lg p-4 text-center sentiment-card">
+                        <img src="https://cliply.co/wp-content/uploads/2021/03/392103580_BLUSHING_EMOJI_400px.gif" alt="Positive Emoji" class="w-16 h-16 mx-auto mb-2">
+                        <h3 class="text-lg font-semibold text-green-700">Positive</h3>
+                        <p class="text-3xl font-bold text-green-600">{{ sentiment_percentages.positive }}%</p>
+                    </div>
+                    <div class="bg-gray-50 rounded-lg p-4 text-center sentiment-card">
+                        <img src="https://cliply.co/wp-content/uploads/2021/03/392103390_SAD_EMOJI_400px.gif" alt="Neutral Emoji" class="w-16 h-16 mx-auto mb-2">
+                        <h3 class="text-lg font-semibold text-gray-700">Neutral</h3>
+                        <p class="text-3xl font-bold text-gray-600">{{ sentiment_percentages.neutral }}%</p>
+                    </div>
+                    <div class="bg-red-50 rounded-lg p-4 text-center sentiment-card">
+                        <img src="https://cliply.co/wp-content/uploads/2021/03/392103840_SAD_EMOJI_WITH_TEAR_400px.gif" alt="Negative Emoji" class="w-16 h-16 mx-auto mb-2">
+                        <h3 class="text-lg font-semibold text-red-700">Negative</h3>
+                        <p class="text-3xl font-bold text-red-600">{{ sentiment_percentages.negative }}%</p>
+                    </div>
+                </div>
+
+                <h3 class="mt-4 text-xl font-semibold text-gray-700">Sample Reviews:</h3>
+                <div class="space-y-4 mt-2">
+                    {% for review in reviews %}
+                        <div class="bg-white/90 rounded-lg p-4 shadow">
+                            <p class="text-gray-700 mb-2">{{ review }}</p>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </section>
+        {% endif %}
 
         <!-- File Upload Analysis -->
         {% if file_sentiment %}
@@ -189,3 +229,4 @@
     </div>
 </body>
 </html>
+

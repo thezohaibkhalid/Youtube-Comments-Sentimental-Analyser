@@ -6,7 +6,7 @@ from utils.preprocess import preprocess_comment
 from nltk.sentiment.vader import SentimentIntensityAnalyzer
 import nltk
 
-nltk.download('vader_lexicon')
+# nltk.download('vader_lexicon')
 
 logger = logging.getLogger(__name__)
 

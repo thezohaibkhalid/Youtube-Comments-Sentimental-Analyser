@@ -6,7 +6,6 @@ from utils.preprocess import preprocess_comment
 from nltk.sentiment.vader import SentimentIntensityAnalyzer
 import nltk
 
-# Ensure NLTK data is downloaded
 nltk.download('vader_lexicon')
 
 logger = logging.getLogger(__name__)
@@ -17,71 +16,62 @@ if not GOOGLE_MAPS_API_KEY:
     logger.error("Google Maps API key not found. Please set the GOOGLE_MAPS_API_KEY environment variable.")
     raise ValueError("Google Maps API key not found. Please set the GOOGLE_MAPS_API_KEY environment variable.")
 
-def extract_place_id(embed_url):
+def extract_place_id(url):
     try:
-        match = re.search(r'2s([^!]+)', embed_url)
-        if match:
-            place_name = match.group(1).replace('%20', ' ')
-            logger.info(f"Extracted place name: {place_name}")
-            place_id = get_place_id(place_name)
-            return place_id
+        if 'maps.app.goo.gl' in url:
+            # Handle short URL format
+            response = requests.get(url, allow_redirects=False)
+            if response.status_code == 302:
+                long_url = response.headers['Location']
+                match = re.search(r'!1s([\w\-]+)', long_url)
+                if match:
+                    return match.group(1)
         else:
-            logger.error("Place name not found in the embed URL.")
-            return None
+            # Handle embed URL format
+            match = re.search(r'!1s([\w\-]+)', url)
+            if match:
+                return match.group(1)
+        
+        logger.error("Place ID not found in the URL.")
+        return None
     except Exception as e:
         logger.error(f"Error extracting Place ID: {e}")
         return None
 
-def get_place_id(place_name):
-    try:
-        url = "https://maps.googleapis.com/maps/api/place/findplacefromtext/json"
-        params = {
-            'input': place_name,
-            'inputtype': 'textquery',
-            'fields': 'place_id',
-            'key': GOOGLE_MAPS_API_KEY
-        }
-        response = requests.get(url, params=params)
-        data = response.json()
-        if data.get('status') == 'OK' and data.get('candidates'):
-            place_id = data['candidates'][0]['place_id']
-            logger.info(f"Obtained Place ID: {place_id}")
-            return place_id
-        else:
-            logger.error(f"Places API error: {data.get('status')}")
-            return None
-    except Exception as e:
-        logger.error(f"Error getting Place ID: {e}")
-        return None
-
-def fetch_google_maps_reviews(place_id):
+def get_place_details(place_id):
     try:
         url = "https://maps.googleapis.com/maps/api/place/details/json"
         params = {
             'place_id': place_id,
-            'fields': 'review',
+            'fields': 'name,rating,review',
             'key': GOOGLE_MAPS_API_KEY
         }
         response = requests.get(url, params=params)
         data = response.json()
         if data.get('status') == 'OK':
-            reviews = data['result'].get('reviews', [])
-            formatted_reviews = [{'author': review.get('author_name'), 'rating': review.get('rating'), 'text': review.get('text')} for review in reviews]
-            logger.info(f"Fetched {len(formatted_reviews)} reviews.")
-            return formatted_reviews
+            return data['result']
         else:
             logger.error(f"Place Details API error: {data.get('status')}")
-            return []
+            return None
     except Exception as e:
-        logger.error(f"Error fetching reviews: {e}")
-        return []
+        logger.error(f"Error getting place details: {e}")
+        return None
+
+def fetch_google_maps_reviews(place_id):
+    place_details = get_place_details(place_id)
+    if place_details:
+        reviews = place_details.get('reviews', [])
+        formatted_reviews = [{'author': review.get('author_name'), 'rating': review.get('rating'), 'text': review.get('text')} for review in reviews]
+        logger.info(f"Fetched {len(formatted_reviews)} reviews.")
+        return formatted_reviews, place_details.get('name'), place_details.get('rating')
+    return [], None, None
 
 def analyze_sentiments(reviews):
     try:
         sia = SentimentIntensityAnalyzer()
         sentiments = []
         for review in reviews:
-            score = sia.polarity_scores(review)
+            score = sia.polarity_scores(review['text'])
             compound = score['compound']
             if compound >= 0.05:
                 sentiments.append('positive')
@@ -94,3 +84,4 @@ def analyze_sentiments(reviews):
     except Exception as e:
         logger.error(f"Error during sentiment analysis: {e}")
         return []
+

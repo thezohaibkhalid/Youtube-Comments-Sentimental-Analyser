@@ -13,28 +13,28 @@ maps_bp = Blueprint('maps', __name__)
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-@maps_bp.route('/maps', methods=['POST'])
+@maps_bp.route('/analyze_maps', methods=['POST'])
 def analyze_maps():
     googlemaps_url = request.form.get('googlemaps_url')
     
     if not googlemaps_url:
         flash('No Google Maps URL provided.', 'error')
-        return redirect(url_for('index'))
+        return redirect(url_for('home'))
     
     try:
         place_id = extract_place_id(googlemaps_url)
         if not place_id:
-            flash('Invalid Google Maps embed URL.', 'error')
-            return redirect(url_for('index'))
+            flash('Invalid Google Maps URL.', 'error')
+            return redirect(url_for('home'))
         
-        reviews = fetch_google_maps_reviews(place_id)
+        reviews, place_name, place_rating = fetch_google_maps_reviews(place_id)
         if not reviews:
             flash('No reviews found for the provided location.', 'info')
-            return redirect(url_for('index'))
+            return redirect(url_for('home'))
         
-        preprocessed_reviews = [preprocess_comment(review['text'], set(), None, False) for review in reviews]
+        preprocessed_reviews = [preprocess_comment(review.get('text', ''), set(), None, False) for review in reviews]
         
-        sentiment_results = analyze_sentiments(preprocessed_reviews)
+        sentiment_results = analyze_sentiments(reviews)
         
         total_reviews = len(sentiment_results)
         positive = sum(1 for sentiment in sentiment_results if sentiment == 'positive')
@@ -50,6 +50,8 @@ def analyze_maps():
         return render_template(
             'maps_result.html',
             googlemaps_url=googlemaps_url,
+            place_name=place_name,
+            place_rating=place_rating,
             total_reviews=total_reviews,
             sentiment_percentages=sentiment_percentages,
             reviews=reviews[:10],  # Show top 10 reviews
@@ -58,4 +60,9 @@ def analyze_maps():
     except Exception as e:
         logger.error(f"Error during Google Maps sentiment analysis: {e}")
         flash('An error occurred while processing your request.', 'error')
-        return redirect(url_for('index'))
+        return redirect(url_for('home'))
+
+@maps_bp.route('/maps', methods=['POST'])
+def maps_redirect():
+    return analyze_maps()
+

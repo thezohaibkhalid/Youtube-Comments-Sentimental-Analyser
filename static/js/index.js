@@ -108,8 +108,8 @@ document.getElementById('inputForm').addEventListener('submit', function(e) {
   if (isValid) {
     this.submit();
   } else {
-    alert('Please provide valid input for analysis.');
-  }
+    this.submit();
+   }
 });
 
  setActiveSection('youtube');

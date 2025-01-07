@@ -3,7 +3,7 @@ from playwright.async_api import async_playwright
 from nltk.sentiment import SentimentIntensityAnalyzer
 import nltk
 
-nltk.download('vader_lexicon', quiet=True)
+# nltk.download('vader_lexicon', quiet=True)
 
 async def scrape_reviews(url):
     reviews = []

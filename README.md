@@ -1,4 +1,3 @@
-
 # 🎭 YouTube & Google Reviews Sentiment Analyzer
 
 > A Flask-based web application that fetches YouTube comments via the YouTube API, scrapes Google Maps reviews using web scraping, and performs sentiment analysis. The app includes a machine learning model with feature extraction and prediction components and features an interactive UI built with HTML and Element UI.
@@ -20,14 +19,13 @@
 
 ## 🚀 Introduction
 
-The **YouTube & Google Reviews Sentiment Analyzer** is a Flask-powered web application that automates the process of fetching YouTube comments and Google Maps business reviews, analyzing their sentiment, and providing insights through a user-friendly interface.
+The **YouTube & Google Reviews Sentiment Analyzer** is a Flask-powered web application that automates the process of:
 
-Key functionalities:
-- Fetches **YouTube comments** via the **YouTube API**.
-- Scrapes **Google Maps business reviews**.
-- Performs **sentiment analysis** on fetched data.
-- Uses a **machine learning model** with feature extraction and prediction.
-- Provides an intuitive **UI with HTML & Element UI**.
+- Fetching **YouTube comments** using the **YouTube API**.
+- Scraping **Google Maps business reviews**.
+- Performing **sentiment analysis** on fetched data.
+- Using a **machine learning models** one of feature extraction & one of prediction components.
+- Providing an intuitive **UI with HTML & Element UI**.
 
 ---
 
@@ -37,8 +35,9 @@ Key functionalities:
 ✅ **Scrape Google Maps reviews** from Google Business listings.  
 ✅ **Sentiment analysis** of comments and reviews using NLP techniques.  
 ✅ **Machine Learning Model** for feature extraction and prediction.  
-✅ **Web-based UI** built with **HTML and Element UI** for seamless interaction.  
-✅ **Flask-powered backend** for handling requests and processing data.  
+✅ **Modular Flask app** with blueprints for better scalability.  
+✅ **Web-based UI** built with **HTML and Element UI**.  
+✅ **Testing framework included** for validating functionalities.  
 
 ---
 
@@ -118,7 +117,32 @@ Open your browser and visit:
 
 ## 📂 Project Structure
 
+```
+📦 Youtube-Comments-Sentimental-Analyser
+│── 📂 blueprints/             # Modular Flask blueprints for different features
+│── 📂 config/                 # Configuration files
+│── 📂 models/                 # ML Model (Feature Extraction & Predictions)
+│── 📂 services/               # API integration & web scraping logic
+│── 📂 static/                 # Static files (CSS, JS)
+│── 📂 templates/              # HTML templates for UI
+│── 📂 tests/                  # Unit tests for the application
+│── 📂 utils/                  # Utility functions
+│── .gitignore                 # Git ignore file
+│── README.md                  # Project Documentation
+│── app.py                     # Flask Application Entry Point
+│── requirements.txt            # Python dependencies
+```
 
+### 📌 Key Folder Descriptions
+
+- **`blueprints/`** → Organizes Flask routes into modular components.  
+- **`config/`** → Contains configuration settings.  
+- **`models/`** → Stores machine learning models for sentiment analysis.  
+- **`services/`** → Handles API requests (YouTube API, web scraping).  
+- **`static/`** → Contains CSS, JavaScript, and other static assets.  
+- **`templates/`** → Stores HTML templates for the front-end UI.  
+- **`tests/`** → Includes test cases for verifying functionality.  
+- **`utils/`** → Contains utility functions for data processing.  
 
 ---
 
